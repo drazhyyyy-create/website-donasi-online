@@ -1,0 +1,124 @@
+<?php
+$conn = mysqli_connect("localhost", "root", "", "sipeduli_db");
+
+if (isset($_POST['submit'])) {
+    $nama = $_POST['nama'];
+    $email = $_POST['email'];
+    $kategori = $_POST['kategori'];
+    $jenis = $_POST['jenis_donasi'];
+    $tanggal = date('Y-m-d H:i:s');
+
+    // Proses upload bukti transfer
+    $bukti_transfer = '';
+    if ($_FILES['bukti_transfer']['name'] != '') {
+        $bukti_transfer = $_FILES['bukti_transfer']['name'];
+        $tmp = $_FILES['bukti_transfer']['tmp_name'];
+        move_uploaded_file($tmp, 'uploads/' . $bukti_transfer);
+    }
+
+    // Proses upload bukti barang
+    $bukti_barang = '';
+    if ($_FILES['bukti_barang']['name'] != '') {
+        $bukti_barang = $_FILES['bukti_barang']['name'];
+        $tmp2 = $_FILES['bukti_barang']['tmp_name'];
+        move_uploaded_file($tmp2, 'uploads/' . $bukti_barang);
+    }
+
+    // Simpan ke database
+    $query = "INSERT INTO donatur (nama, email, kategori, jenis_donasi, bukti_transfer, bukti_barang, tanggal_donasi)
+              VALUES ('$nama', '$email', '$kategori', '$jenis', '$bukti_transfer', '$bukti_barang', '$tanggal')";
+
+    if (mysqli_query($conn, $query)) {
+        echo "<script>alert('Data berhasil ditambahkan!'); window.location.href='dashboard2.php';</script>";
+    } else {
+        echo "Gagal menyimpan data: " . mysqli_error($conn);
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tambah Donatur</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f0f2f5;
+            padding: 30px;
+        }
+        .form-container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 12px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 20px;
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        a.back {
+            display: inline-block;
+            margin-top: 15px;
+            text-decoration: none;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Tambah Data Donatur</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        <label>Nama Donatur</label>
+        <input type="text" name="nama" required>
+
+        <label>Email</label>
+        <input type="email" name="email" required>
+
+        <label>Kategori</label>
+        <input type="text" name="kategori" required>
+
+        <label>Jenis Donasi</label>
+        <select name="jenis_donasi" required>
+            <option value="Dana">Dana</option>
+            <option value="Pakaian">Pakaian</option>
+            <option value="Sembako">Sembako</option>
+            <option value="Buku">Buku</option>
+        </select>
+
+        <label>Bukti Transfer</label>
+        <input type="file" name="bukti_transfer">
+
+        <label>Bukti Barang</label>
+        <input type="file" name="bukti_barang">
+
+        <button type="submit" name="submit">Simpan Donatur</button>
+    </form>
+
+    <a href="dashboard2.php" class="back">← Kembali ke Dashboard</a>
+</div>
+
+</body>
+</html>
